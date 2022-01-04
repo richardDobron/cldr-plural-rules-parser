@@ -1,0 +1,29 @@
+{
+    "name": "dobron/cldr-plural-rules-parser",
+    "description": "Export language plural rules from CLDR Supplemental Data",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Richard Dobroň"
+        }
+    ],
+    "require": {
+        "php": "^8.0",
+        "kub-at/php-simple-html-dom-parser": "^1.9",
+        "friendsofphp/php-cs-fixer": "^3.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "dobron\\CLDRSupplementalData\\": "src"
+        }
+    },
+    "scripts": {
+        "post-merge": "composer install",
+        "check-style": "php-cs-fixer fix --using-cache=no --diff --dry-run --ansi",
+        "fix-style": "php-cs-fixer fix --using-cache=no --ansi"
+    },
+    "scripts-descriptions": {
+        "check-style": "Run style checks (only dry run - no fixing!).",
+        "fix-style": "Run style checks and fix violations."
+    }
+}
