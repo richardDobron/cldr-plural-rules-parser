@@ -3,29 +3,32 @@
 namespace dobron\CLDRSupplementalData;
 
 use KubAT\PhpSimple\HtmlDomParser;
+use simple_html_dom\simple_html_dom;
 
 class ExportLanguagePluralRules
 {
-    private const CLDR_BASE_URL = "https://unicode-org.github.io/cldr-staging/charts/latest/supplemental";
-    private const CLDR_DATA_URL = self::CLDR_BASE_URL . "/language_plural_rules.html";
-    private const CLDR_VERSION_URL = self::CLDR_BASE_URL . "/include-version.html";
-    private const RE_LANGUAGE_RELATION = '/=(\w+)/';
+    protected const CLDR_BASE_URL = 'https://unicode-org.github.io/cldr-staging/charts/latest/supplemental';
+    protected const CLDR_DATA_URL = self::CLDR_BASE_URL . '/language_plural_rules.html';
+    protected const CLDR_VERSION_URL = self::CLDR_BASE_URL . '/include-version.html';
+    protected const RE_LANGUAGE_RELATION = '/=(\w+)/';
+    protected const RE_NOT_AVAILABLE = '/n\/a|Not available/';
 
-    private array $table = [];
-    private ?int $highest_column = null;
-    private ?string $version = null;
-    private array $languages = [];
-    private array $equal_languages = [];
+    protected array $table = [];
+    protected ?int $highest_column = null;
+    protected ?string $version = null;
+    protected array $languages = [];
+    protected array $equal_languages = [];
 
     public function __construct()
     {
         $this->checkDataVersion();
 
         $html = $this->fetch(self::CLDR_DATA_URL);
-        $rows = $html->find("table.dtf-table", 0)->find("tr");
+
+        $rows = $html->find('table.dtf-table', 0)->find('tr');
 
         foreach ($rows as $row_index => $row) {
-            $columns = $row->find("td.dtf-s");
+            $columns = $row->find('td.dtf-s');
             if (count($columns)) {
                 $this->parseRow($columns, $row_index);
             }
@@ -37,9 +40,9 @@ class ExportLanguagePluralRules
     public function flush(): string
     {
         return json_encode([
-            "version" => $this->version,
-            "languages" => $this->languages,
-            "equals" => $this->equal_languages
+            'version' => $this->version,
+            'languages' => $this->languages,
+            'equals' => $this->equal_languages
         ], JSON_PRETTY_PRINT);
     }
 
@@ -62,7 +65,7 @@ class ExportLanguagePluralRules
         return file_put_contents($filename, $this->flush());
     }
 
-    private function build(): self
+    protected function build(): void
     {
         foreach ($this->table as $row) {
             [$language_name, $language_code, $language_type, $language_category] = $row;
@@ -81,23 +84,21 @@ class ExportLanguagePluralRules
             $this->languages[$language_code]['language'] = $language_name;
 
             $this->languages[$language_code][$language_type][$language_category] = [
-                "examples" => $row[4],
-                "pairs" => $row[5],
-                "rules" => $row[6]
+                'examples' => $row[4],
+                'pairs' => $row[5],
+                'rules' => $row[6]
             ];
         }
-
-        return $this;
     }
 
-    private function fetch(string $url)
+    protected function fetch(string $url): simple_html_dom
     {
         return HtmlDomParser::str_get_html(file_get_contents($url));
     }
 
-    private function rowspan($column): int
+    protected function rowspan($column): int
     {
-        $rowspan = intval($column->getAttribute("rowspan"));
+        $rowspan = intval($column->getAttribute('rowspan'));
 
         if (!$rowspan) {
             return 1;
@@ -106,26 +107,26 @@ class ExportLanguagePluralRules
         return $rowspan;
     }
 
-    private function checkDataVersion(): void
+    protected function checkDataVersion(): void
     {
         $html = $this->fetch(self::CLDR_VERSION_URL);
-        $this->version = $html->find("span.version", 0)->innertext;
+        $this->version = $html->find('span.version', 0)->innertext;
     }
 
-    private function value(int $row_index, int $col_index, $value): void
+    protected function value(int $row_index, int $column_index, $value): void
     {
         while (count($this->table) <= $row_index) {
             $this->table[] = array_fill(0, $this->highest_column, '');
         }
 
-        while (!empty($this->table[$row_index][$col_index])) {
-            $col_index += 1;
+        while (!empty($this->table[$row_index][$column_index])) {
+            $column_index += 1;
         }
 
-        $this->table[$row_index][$col_index] = $value;
+        $this->table[$row_index][$column_index] = $value;
     }
 
-    private function parseRow(array $columns, int $row_index)
+    protected function parseRow(array $columns, int $row_index): void
     {
         if ($this->highest_column === null) {
             $this->highest_column = count($columns);
@@ -137,7 +138,7 @@ class ExportLanguagePluralRules
             }
 
             $data = html_entity_decode($column->plaintext);
-            if (preg_match("/n\/a|Not available/", $data)) {
+            if (preg_match(self::RE_NOT_AVAILABLE, $data)) {
                 $data = null;
             }
 
