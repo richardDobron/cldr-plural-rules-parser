@@ -7,7 +7,7 @@ use simple_html_dom\simple_html_dom;
 
 class ExportLanguagePluralRules
 {
-    protected const CLDR_BASE_URL = 'https://unicode-org.github.io/cldr-staging/charts/latest/supplemental';
+    protected const CLDR_BASE_URL = 'https://cldr-smoke.unicode.org/staging-dev/charts/45/supplemental';
     protected const CLDR_DATA_URL = self::CLDR_BASE_URL . '/language_plural_rules.html';
     protected const CLDR_VERSION_URL = self::CLDR_BASE_URL . '/include-version.html';
     protected const RE_LANGUAGE_RELATION = '/=(\w+)/';
