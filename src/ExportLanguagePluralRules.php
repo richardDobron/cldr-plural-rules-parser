@@ -2,12 +2,9 @@
 
 namespace dobron\CLDRSupplementalData;
 
-use KubAT\PhpSimple\HtmlDomParser;
-use simple_html_dom\simple_html_dom;
-
 class ExportLanguagePluralRules
 {
-    protected const CLDR_BASE_URL = 'https://cldr-smoke.unicode.org/staging-dev/charts/45/supplemental';
+    protected const CLDR_BASE_URL = 'https://www.unicode.org/cldr/charts/46/supplemental';
     protected const CLDR_DATA_URL = self::CLDR_BASE_URL . '/language_plural_rules.html';
     protected const CLDR_VERSION_URL = self::CLDR_BASE_URL . '/include-version.html';
     protected const RE_LANGUAGE_RELATION = '/=(\w+)/';
@@ -25,10 +22,10 @@ class ExportLanguagePluralRules
 
         $html = $this->fetch(self::CLDR_DATA_URL);
 
-        $rows = $html->find('table.dtf-table', 0)->find('tr');
+        $rows = $html->getElementsByTagName('tr');
 
         foreach ($rows as $row_index => $row) {
-            $columns = $row->find('td.dtf-s');
+            $columns = $this->getElementsByClassName($row, 'td', 'dtf-s');
             if (count($columns)) {
                 $this->parseRow($columns, $row_index);
             }
@@ -68,22 +65,27 @@ class ExportLanguagePluralRules
     protected function build(): void
     {
         foreach ($this->table as $row) {
-            [$language_name, $language_code, $language_type, $language_category] = $row;
-            preg_match(self::RE_LANGUAGE_RELATION, $language_type, $language_mode_match);
+            [$languageName, $languageCode, $languageType, $languageCategory] = $row;
 
-            if ($language_mode_match) {
-                $this->equal_languages[$language_mode_match[1]] ??= [];
-                $this->equal_languages[$language_mode_match[1]][] = $language_code;
+            if (empty($languageType)) {
                 continue;
             }
 
-            if (empty($language_category)) {
+            preg_match(self::RE_LANGUAGE_RELATION, $languageType, $languageModeMatch);
+
+            if ($languageModeMatch) {
+                $this->equal_languages[$languageModeMatch[1]] ??= [];
+                $this->equal_languages[$languageModeMatch[1]][] = $languageCode;
                 continue;
             }
 
-            $this->languages[$language_code]['language'] = $language_name;
+            if (empty($languageCategory)) {
+                continue;
+            }
 
-            $this->languages[$language_code][$language_type][$language_category] = [
+            $this->languages[$languageCode]['language'] = $languageName;
+
+            $this->languages[$languageCode][$languageType][$languageCategory] = [
                 'examples' => $row[4],
                 'pairs' => $row[5],
                 'rules' => $row[6]
@@ -91,39 +93,44 @@ class ExportLanguagePluralRules
         }
     }
 
-    protected function fetch(string $url): simple_html_dom
+    protected function fetch(string $url): \DOMDocument
     {
-        return HtmlDomParser::str_get_html(file_get_contents($url));
-    }
+        $htmlContent = file_get_contents($url);
 
-    protected function rowspan($column): int
-    {
-        $rowspan = intval($column->getAttribute('rowspan'));
+        $dom = new \DOMDocument();
+        $dom->preserveWhiteSpace = false;
+        @$dom->loadHTML($htmlContent);
 
-        if (!$rowspan) {
-            return 1;
-        }
-
-        return $rowspan;
+        return $dom;
     }
 
     protected function checkDataVersion(): void
     {
         $html = $this->fetch(self::CLDR_VERSION_URL);
-        $this->version = $html->find('span.version', 0)->innertext;
+        $xpath = new \DOMXPath($html);
+
+        $versionNode = $xpath->query("//span[contains(@class, 'version')]");
+        if ($versionNode && $versionNode->length > 0) {
+            $this->version = trim($versionNode->item(0)->nodeValue);
+        }
     }
 
-    protected function value(int $row_index, int $column_index, $value): void
+    protected function rowspan(\DOMElement $column): int
     {
-        while (count($this->table) <= $row_index) {
+        return (int) $column->getAttribute('rowspan') ?: 1;
+    }
+
+    protected function value(int $rowIndex, int $columnIndex, $value): void
+    {
+        while (count($this->table) <= $rowIndex) {
             $this->table[] = array_fill(0, $this->highest_column, '');
         }
 
-        while (!empty($this->table[$row_index][$column_index])) {
-            $column_index += 1;
+        while (!empty($this->table[$rowIndex][$columnIndex])) {
+            $columnIndex += 1;
         }
 
-        $this->table[$row_index][$column_index] = $value;
+        $this->table[$rowIndex][$columnIndex] = $value;
     }
 
     protected function parseRow(array $columns, int $row_index): void
@@ -137,7 +144,7 @@ class ExportLanguagePluralRules
                 $this->table[] = array_fill(0, $this->highest_column, null);
             }
 
-            $data = html_entity_decode($column->plaintext);
+            $data = $this->getNodeValueWithLineBreaks($column);
             if (preg_match(self::RE_NOT_AVAILABLE, $data)) {
                 $data = null;
             }
@@ -152,5 +159,35 @@ class ExportLanguagePluralRules
                 $this->value($row_index, $column_index, $data);
             }
         }
+    }
+
+    protected function getElementsByClassName(\DOMElement $element, string $tagName, string $className): array
+    {
+        $elements = [];
+        foreach ($element->getElementsByTagName($tagName) as $child) {
+            if ($child->hasAttribute('class') && str_contains($child->getAttribute('class'), $className)) {
+                $elements[] = $child;
+            }
+        }
+        return $elements;
+    }
+
+    protected function getNodeValueWithLineBreaks(\DOMElement $node): string
+    {
+        $textContent = '';
+
+        foreach ($node->childNodes as $child) {
+            if ($child->nodeType === XML_TEXT_NODE) {
+                $textContent .= $child->nodeValue;
+            } elseif ($child->nodeType === XML_ELEMENT_NODE) {
+                if ($child->nodeName === 'br') {
+                    $textContent .= "\r\n";
+                } else {
+                    $textContent .= $this->getNodeValueWithLineBreaks($child);
+                }
+            }
+        }
+
+        return html_entity_decode($textContent);
     }
 }

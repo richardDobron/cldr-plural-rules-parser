@@ -9,7 +9,7 @@
     ],
     "require": {
         "php": "^8.0",
-        "kub-at/php-simple-html-dom-parser": "^1.9",
+        "ext-dom": "*",
         "friendsofphp/php-cs-fixer": "^3.0"
     },
     "autoload": {
