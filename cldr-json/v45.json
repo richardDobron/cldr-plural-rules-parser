@@ -1,5 +1,5 @@
 {
-    "version": "45.0\u03b2",
+    "version": "45.0",
     "languages": {
         "af": {
             "language": "Afrikaans",
@@ -97,17 +97,17 @@
             "cardinal": {
                 "zero": {
                     "examples": "0\r\n0.0, 0.00, 0.000, 0.0000",
-                    "pairs": "baa \u028ashil\u00e9 0\r\nbaa \u028ashil\u00e9 0.0000",
+                    "pairs": "baa \u028ashil\u00e9 0\r\nbaa \u028ashil\u00e9 0,0000",
                     "rules": "n = 0"
                 },
                 "one": {
                     "examples": "1\r\n1.0, 1.00, 1.000, 1.0000",
-                    "pairs": "\u028ashil\u00e9 1\r\n\u028ashil\u00e9 1.0",
+                    "pairs": "\u028ashil\u00e9 1\r\n\u028ashil\u00e9 1,0",
                     "rules": "n = 1"
                 },
                 "other": {
                     "examples": "2~16, 100, 1000, 10000, 100000, 1000000, \u2026\r\n2.0~2.5, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, \u2026",
-                    "pairs": "\u0269shil\u00e9 2\r\n\u0269shil\u00e9 2.0",
+                    "pairs": "\u0269shil\u00e9 2\r\n\u0269shil\u00e9 2,0",
                     "rules": ""
                 }
             },
@@ -1783,7 +1783,7 @@
                 },
                 "many": {
                     "examples": "1000000, 1c6, 2c6, 3c6, 4c6, 5c6, 6c6, \u2026\r\n1.0000001c6, 1.1c6, 2.0000001c6, 2.1c6, 3.0000001c6, 3.1c6, \u2026",
-                    "pairs": "1.000.000 di giorni\r\n1\u00a0Mio di giorni",
+                    "pairs": "1.000.000 di giorni\r\n1\u00a0Mln di giorni",
                     "rules": "e = 0 and\r\n\u00a0\u00a0i != 0 and\r\n\u00a0\u00a0i % 1000000 = 0 and\r\n\u00a0\u00a0v = 0 or\r\ne != 0..5"
                 },
                 "other": {
@@ -3857,8 +3857,8 @@
                 },
                 "other": {
                     "examples": "0, 2~16, 100, 1000, 10000, 100000, 1000000, \u2026\r\n0.0~0.9, 1.1~1.6, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, \u2026",
-                    "pairs": "range",
-                    "rules": null
+                    "pairs": "\u202b\u071d\u0720\u0308\u0710 \u071d\u0722\u0710 \u0725\u072c\u071d\u0715\u0308\u0710 2\r\n\u071d\u0720\u0308\u0710 \u071d\u0722\u0710 \u0725\u072c\u071d\u0715\u0308\u0710 0.9\u202c",
+                    "rules": ""
                 }
             }
         },
@@ -4305,7 +4305,7 @@
                 },
                 "other": {
                     "examples": "0, 2~16, 100, 1000, 10000, 100000, 1c3, 2c3, 3c3, 4c3, 5c3, 6c3, \u2026\r\n0.0~1.5, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, 1.0001c3, 1.1c3, 2.0001c3, 2.1c3, 3.0001c3, 3.1c3, \u2026",
-                    "pairs": "2 pomi\r\n1.5 pomi",
+                    "pairs": "2 pomi\r\n1,5 pomi",
                     "rules": ""
                 }
             },
