@@ -4,17 +4,17 @@ namespace dobron\CLDRSupplementalData;
 
 class ExportLanguagePluralRules
 {
-    protected const CLDR_BASE_URL = 'https://www.unicode.org/cldr/charts/46/supplemental';
+    protected const CLDR_BASE_URL = 'https://www.unicode.org/cldr/charts/latest/supplemental';
     protected const CLDR_DATA_URL = self::CLDR_BASE_URL . '/language_plural_rules.html';
     protected const CLDR_VERSION_URL = self::CLDR_BASE_URL . '/include-version.html';
     protected const RE_LANGUAGE_RELATION = '/=(\w+)/';
     protected const RE_NOT_AVAILABLE = '/n\/a|Not available/';
 
     protected array $table = [];
-    protected ?int $highest_column = null;
+    protected ?int $highestColumn = null;
     protected ?string $version = null;
     protected array $languages = [];
-    protected array $equal_languages = [];
+    protected array $equalLanguages = [];
 
     public function __construct()
     {
@@ -24,10 +24,10 @@ class ExportLanguagePluralRules
 
         $rows = $html->getElementsByTagName('tr');
 
-        foreach ($rows as $row_index => $row) {
+        foreach ($rows as $rowIndex => $row) {
             $columns = $this->getElementsByClassName($row, 'td', 'dtf-s');
             if (count($columns)) {
-                $this->parseRow($columns, $row_index);
+                $this->parseRow($columns, $rowIndex);
             }
         }
 
@@ -39,7 +39,7 @@ class ExportLanguagePluralRules
         return json_encode([
             'version' => $this->version,
             'languages' => $this->languages,
-            'equals' => $this->equal_languages
+            'equals' => $this->equalLanguages
         ], JSON_PRETTY_PRINT);
     }
 
@@ -74,8 +74,8 @@ class ExportLanguagePluralRules
             preg_match(self::RE_LANGUAGE_RELATION, $languageType, $languageModeMatch);
 
             if ($languageModeMatch) {
-                $this->equal_languages[$languageModeMatch[1]] ??= [];
-                $this->equal_languages[$languageModeMatch[1]][] = $languageCode;
+                $this->equalLanguages[$languageModeMatch[1]] ??= [];
+                $this->equalLanguages[$languageModeMatch[1]][] = $languageCode;
                 continue;
             }
 
@@ -123,7 +123,7 @@ class ExportLanguagePluralRules
     protected function value(int $rowIndex, int $columnIndex, $value): void
     {
         while (count($this->table) <= $rowIndex) {
-            $this->table[] = array_fill(0, $this->highest_column, '');
+            $this->table[] = array_fill(0, $this->highestColumn, '');
         }
 
         while (!empty($this->table[$rowIndex][$columnIndex])) {
@@ -133,15 +133,13 @@ class ExportLanguagePluralRules
         $this->table[$rowIndex][$columnIndex] = $value;
     }
 
-    protected function parseRow(array $columns, int $row_index): void
+    protected function parseRow(array $columns, int $rowIndex): void
     {
-        if ($this->highest_column === null) {
-            $this->highest_column = count($columns);
-        }
+        $this->highestColumn ??= count($columns);
 
-        foreach ($columns as $column_index => $column) {
-            while (count($this->table) <= $row_index) {
-                $this->table[] = array_fill(0, $this->highest_column, null);
+        foreach ($columns as $columnIndex => $column) {
+            while (count($this->table) <= $rowIndex) {
+                $this->table[] = array_fill(0, $this->highestColumn, null);
             }
 
             $data = $this->getNodeValueWithLineBreaks($column);
@@ -152,11 +150,11 @@ class ExportLanguagePluralRules
             $rowspan = $this->rowspan($column);
 
             if ($rowspan > 1) {
-                foreach (range(0, $rowspan - 1) as $rowspan_index) {
-                    $this->value($row_index + $rowspan_index, $column_index, $data);
+                foreach (range(0, $rowspan - 1) as $rowspanIndex) {
+                    $this->value($rowIndex + $rowspanIndex, $columnIndex, $data);
                 }
             } else {
-                $this->value($row_index, $column_index, $data);
+                $this->value($rowIndex, $columnIndex, $data);
             }
         }
     }
@@ -164,11 +162,13 @@ class ExportLanguagePluralRules
     protected function getElementsByClassName(\DOMElement $element, string $tagName, string $className): array
     {
         $elements = [];
+
         foreach ($element->getElementsByTagName($tagName) as $child) {
             if ($child->hasAttribute('class') && str_contains($child->getAttribute('class'), $className)) {
                 $elements[] = $child;
             }
         }
+
         return $elements;
     }
 
