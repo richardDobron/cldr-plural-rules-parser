@@ -120,7 +120,7 @@ class ExportLanguagePluralRules
         return (int) $column->getAttribute('rowspan') ?: 1;
     }
 
-    protected function value(int $rowIndex, int $columnIndex, $value): void
+    protected function addValue(int $rowIndex, int $columnIndex, ?string $value): void
     {
         while (count($this->table) <= $rowIndex) {
             $this->table[] = array_fill(0, $this->highestColumn, '');
@@ -151,10 +151,10 @@ class ExportLanguagePluralRules
 
             if ($rowspan > 1) {
                 foreach (range(0, $rowspan - 1) as $rowspanIndex) {
-                    $this->value($rowIndex + $rowspanIndex, $columnIndex, $data);
+                    $this->addValue($rowIndex + $rowspanIndex, $columnIndex, $data);
                 }
             } else {
-                $this->value($rowIndex, $columnIndex, $data);
+                $this->addValue($rowIndex, $columnIndex, $data);
             }
         }
     }

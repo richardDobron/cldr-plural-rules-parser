@@ -2,12 +2,12 @@
 
 Contributions are **welcome** and will be fully **credited**.
 
-We accept contributions via Pull Requests on [Github](https://github.com/richardDobron/laravel-db-enum-generator).
+We accept contributions via Pull Requests on [Github](https://github.com/richardDobron/cldr-plural-rules-parser).
 
 
 ## Pull Requests
 
-- **[PSR-2 Coding Standard](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md)** - Check the code style with ``$ composer check-style`` and fix it with ``$ composer fix-style``.
+- **[PSR-12 Coding Standard](https://www.php-fig.org/psr/psr-12/)** - Check the code style with ``$ composer check-style`` and fix it with ``$ composer fix-style``.
 
 - **Add tests!** - Your patch won't be accepted if it doesn't have tests.
 
