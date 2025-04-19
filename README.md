@@ -1,32 +1,38 @@
-Export language plural rules from CLDR Supplemental Data
+# CLDR Plural Rules Parser
+
+Export language plural rules from CLDR Supplemental Data.
+
+**Source Data (latest):** https://cldr.unicode.org/index/downloads
+
 ---
 
-Source data (latest): https://unicode-org.github.io/cldr-staging/charts/latest/supplemental/language_plural_rules.html
+## 📦 Installation
 
-## Installing
+Install the library using Composer:
 
 ```shell
 $ composer require dobron/cldr-plural-rules-parser
 ```
 
-## Usage
+## ⚡️ Quick Start
 
-### Flush JSON response
+### Flush JSON Response
 ```php
 echo (new \dobron\CLDRSupplementalData\ExportLanguagePluralRules)->flush();
 ```
 
-### Load specific version
+### Load Specific Version
 ```php
 echo (new \dobron\CLDRSupplementalData\ExportLanguagePluralRules)->load('v40');
 ```
 
-### Save JSON file
+### Save JSON File
 ```php
-echo (new \dobron\CLDRSupplementalData\ExportLanguagePluralRules)->store('latest.json');
+(new \dobron\CLDRSupplementalData\ExportLanguagePluralRules)->store('latest.json');
 ```
 
 ## Example Data
+Here is an example of the JSON output:
 
 ```json5
 {
@@ -219,18 +225,17 @@ echo (new \dobron\CLDRSupplementalData\ExportLanguagePluralRules)->store('latest
 }
 ```
 
-## Contributing
+## 🤝 Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 
-## Credits
+## 🙋 Credits
 
 - [Richard Dobroň][link-author]
 
 
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+## ⚖️ License
+This repository is MIT licensed, as found in the [LICENSE](LICENSE) file.
 
 [link-author]: https://github.com/richardDobron
